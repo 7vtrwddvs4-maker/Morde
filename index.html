@@ -185,10 +185,10 @@
         <div class="glass-card mb-3">
           <label for="estadoPago">Estado de Pago</label>
           <select id="estadoPago" class="form-select-ios">
-            <option value="Pendiente de pago">⏳ Pendiente de pago</option>
-            <option value="Pagado (Transferencia)">✅ Pagado (Transferencia)</option>
-            <option value="Pagado (Efectivo)">✅ Pagado (Efectivo)</option>
-            <option value="Abono parcial">💵 Abono parcial</option>
+            <option value="⏳ Pendiente de pago">⏳ Pendiente de pago</option>
+            <option value="✅ Pagado (Transferencia)">✅ Pagado (Transferencia)</option>
+            <option value="✅ Pagado (Efectivo)">✅ Pagado (Efectivo)</option>
+            <option value="💵 Abono parcial">💵 Abono parcial</option>
           </select>
         </div>
 
@@ -350,7 +350,7 @@
         document.getElementById('pedidoForm').reset();
         resetearContadores();
         inputFecha.value = hoy;
-        document.getElementById('estadoPago').value = "Pendiente de pago";
+        document.getElementById('estadoPago').value = "⏳ Pendiente de pago";
         btn.innerHTML = '<span class="material-icons-round">cloud_upload</span> Registrar Pedido';
         btn.classList.remove('btn-update-ios');
         document.getElementById('contenedorBusqueda').style.display = 'none';
