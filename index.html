@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <!-- Configuración de caracteres y vista móvil -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- ============================================================== -->
+  <!-- CONFIGURACIÓN PWA (PARA INSTALAR EN CELULAR CON ÍCONO PROPIO)  -->
+  <!-- ============================================================== -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Etiquetas específicas para que funcione perfecto en iPhone/Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="icono-192.png">
+  <!-- ============================================================== -->
+
+  <!-- Estilos y Fuentes Externas -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    :root {
+      --body-bg: radial-gradient(at 0% 0%, rgba(255, 149, 0, 0.12) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(52, 199, 89, 0.08) 0px, transparent 50%), #f5f5f7;
+      --glass-bg: rgba(255, 255, 255, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.5);
+      --glass-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+      --text-primary: rgba(26, 26, 28, 0.9); 
+      --text-secondary: rgba(60, 60, 67, 0.7);
+      --accent-color: #FF9500; 
+      --success-color: #34C759;
+      --input-bg: rgba(255, 255, 255, 0.8);
+      --input-border: rgba(0, 0, 0, 0.08);
+      --row-bg: rgba(255, 255, 255, 0.4);
+    }
+
+    [data-theme="dark"] {
+      --body-bg: radial-gradient(at 0% 0%, rgba(255, 149, 0, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(52, 199, 89, 0.12) 0px, transparent 50%), #111112;
+      --glass-bg: rgba(28, 28, 32, 0.55);
+      --glass-border: rgba(255, 255, 255, 0.1); 
+      --glass-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      --text-primary: rgba(255, 255, 255, 0.95);
+      --text-secondary: rgba(235, 235, 245, 0.6);
+      --accent-color: #FF9F0A;
+      --input-bg: rgba(0, 0, 0, 0.35);
+      --input-border: rgba(255, 255, 255, 0.1);
+      --row-bg: rgba(255, 255, 255, 0.05);
+    }
+
+    * { box-sizing: border-box; transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--body-bg); background-attachment: fixed; margin: 0; padding: 0; color: var(--text-primary); min-height: 100vh; }
+
+    /* BARRA SUPERIOR Y TABS */
+    .top-bar-fixed { position: sticky; top: 0; z-index: 1000; background: var(--glass-bg); backdrop-filter: blur(30px) saturate(190%); border-bottom: 1px solid var(--glass-border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header-title { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .header-title-container { display: flex; align-items: center; }
+
+    .tabs-ios { display: flex; background: var(--glass-bg); padding: 5px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--glass-border); }
+    .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; border-radius: 8px; font-weight: 700; color: var(--text-secondary); cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;}
+    .tab-btn.active { background: var(--input-bg); color: var(--accent-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+    .theme-switch { position: relative; display: inline-block; width: 52px; height: 28px; margin: 0;}
+    .theme-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.4); border-radius: 34px; border: 1px solid var(--glass-border); backdrop-filter: blur(5px); }
+    .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 2px; background-color: white; border-radius: 50%; z-index: 2; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F5A623' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3C/svg%3E"); background-position: center; background-size: 14px; background-repeat: no-repeat; transition: 0.4s; }
+    input:checked + .slider { background-color: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.1); }
+    input:checked + .slider:before { transform: translateX(24px); background-color: #1c1c1e; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E"); }
+
+    /* CONTENEDORES Y FORMULARIOS */
+    .app-container { padding: 0 15px 25px 15px; max-width: 600px; margin: 0 auto; }
+    .glass-card { background: var(--glass-bg); backdrop-filter: blur(30px) saturate(190%); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; box-shadow: var(--glass-shadow); margin-bottom: 20px; }
+    
+    label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+    .form-control-ios, .form-select-ios { border-radius: 12px; border: 1px solid var(--input-border); height: 44px; padding: 0 14px; font-size: 1rem; background: var(--input-bg); color: var(--text-primary); width: 100%; outline: none; font-weight: 500; }
+    .form-control-ios:focus, .form-select-ios:focus { border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 149, 0, 0.15); }
+
+    /* CONTADORES */
+    .counter-item { display: flex; align-items: center; justify-content: space-between; background: var(--row-bg); padding: 10px 14px; border-radius: 14px; border: 1px solid var(--glass-border); margin-bottom: 12px; }
+    .counter-label { flex: 0 0 120px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
+    .counter-controls { display: flex; align-items: center; background: var(--input-bg); border-radius: 10px; padding: 4px; border: 1px solid var(--input-border); }
+    .btn-counter { background: transparent; color: var(--text-primary); border: none; width: 34px; height: 34px; font-size: 22px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; }
+    .btn-counter:active { background: var(--glass-border); }
+    .counter-value { width: 40px; text-align: center; font-size: 1.1rem; font-weight: 700; border: none; background: transparent; color: var(--text-primary); outline: none; pointer-events: none; }
+
+    /* TARJETAS DEL HISTORIAL */
+    .history-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: var(--glass-shadow); }
+    .history-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; margin-bottom: 12px; }
+    .history-title { font-weight: 800; color: var(--text-primary); font-size: 17px; margin:0; letter-spacing: -0.5px;}
+    .history-date { font-size: 12px; color: var(--text-secondary); font-weight: 700; background: var(--row-bg); padding: 5px 10px; border-radius: 8px;}
+    .history-body { margin-bottom: 15px; line-height: 2.2; }
+    .history-item { display: inline-block; background: var(--row-bg); padding: 5px 10px; border-radius: 8px; margin: 0 6px 6px 0; font-weight: 600; font-size: 13px; color: var(--text-primary); border: 1px solid var(--glass-border);}
+    
+    /* BOTONES */
+    .btn-success-ios { background: linear-gradient(135deg, #34C759, #28a745); box-shadow: 0 5px 15px rgba(52, 199, 89, 0.3); color: #ffffff !important; width: 100%; font-size: 16px; padding: 15px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-success-ios:active { transform: scale(0.98); }
+    .btn-update-ios { background: linear-gradient(135deg, #FF9500, #FF3B30); box-shadow: 0 5px 15px rgba(255, 149, 0, 0.3); }
+    .btn-edit-hist { background: rgba(0, 122, 255, 0.1); color: #0A84FF; border: none; padding: 10px 15px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px;}
+
+    /* SWEETALERT Y LOADER (CORRECCIÓN DE ANIMACIÓN) */
+    .glass-swal { background: var(--glass-bg) !important; backdrop-filter: blur(40px) saturate(200%) !important; border: 1px solid var(--glass-border) !important; border-radius: 24px !important; color: var(--text-primary) !important; }
+    .glass-swal .swal2-title { color: var(--text-primary) !important; }
+    .glass-swal .swal2-html-container { color: var(--text-secondary) !important; }
+    .glass-swal-btn { background: var(--accent-color) !important; border-radius: 14px !important; font-weight: 600 !important; padding: 12px 28px !important; }
+    .glass-swal .swal2-success-circular-line-left, .glass-swal .swal2-success-circular-line-right, .glass-swal .swal2-success-fix { background-color: transparent !important; }
+    
+    .ios-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--glass-bg); backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+    .spinner-ios { width: 45px; height: 45px; border: 4px solid var(--glass-border); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div id="loaderFull" class="ios-loader">
+    <div class="spinner-ios mx-auto"></div>
+    <p class="mt-3 fw-bold" style="color: var(--text-primary);" id="loaderText">Cargando sistema...</p>
+  </div>
+
+  <div class="top-bar-fixed">
+    <div class="header-title-container">
+      <!-- Inyección directa de imagen de Google Drive -->
+      <img src="https://drive.google.com/file/d/1v4wnT03D_-vQf8NZtj8ES_YPXFAUrHAM" alt="Logo Mayonesa" style="height: 38px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      <h2 class="header-title" style="margin-left: 10px; font-size: 18px;">Pedidos Mayo</h2>
+    </div>
+    <label class="theme-switch" for="themeToggle">
+      <input type="checkbox" id="themeToggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="app-container">
+    
+    <div class="tabs-ios">
+      <button id="tab-ingreso" class="tab-btn active" onclick="switchTab('ingreso')"><span class="material-icons-round" style="font-size: 18px;">post_add</span> Ingresar Pedido</button>
+      <button id="tab-historial" class="tab-btn" onclick="switchTab('historial')"><span class="material-icons-round" style="font-size: 18px;">history</span> Ver Historial</button>
+    </div>
+
+    <!-- VISTA 1: FORMULARIO DE INGRESO -->
+    <div id="vista-ingreso">
+      <form id="pedidoForm">
+        
+        <div class="glass-card mb-3" style="background: rgba(0, 122, 255, 0.05); border-color: rgba(0, 122, 255, 0.2); display: none;" id="contenedorBusqueda">
+          <label for="selectorPedido" style="color: #0A84FF;"><span class="material-icons-round" style="font-size: 14px; vertical-align: text-bottom;">search</span> Editando Pedido Existente</label>
+          <select id="selectorPedido" class="form-select-ios" onchange="manejarSeleccionPedido()">
+            <option value="">-- Crear Nuevo Pedido --</option>
+          </select>
+        </div>
+
+        <div class="glass-card">
+          <div class="mb-3">
+            <label for="cliente">Nombre del Cliente</label>
+            <input type="text" id="cliente" class="form-control-ios" required autocomplete="off" placeholder="Ej: Juan Pérez">
+          </div>
+          <div class="mb-2">
+            <label for="fechaEntrega">Fecha de Entrega</label>
+            <input type="date" id="fechaEntrega" class="form-control-ios" required>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <label style="margin-bottom: 12px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px;">Cantidades (Frascos 200g)</label>
+          
+          <div class="counter-item"><div class="counter-label">🧄 Ajo</div>
+            <div class="counter-controls"><button type="button" class="btn-counter" onclick="actualizarContador('ajo', -1)">-</button><input type="text" id="ajo" class="counter-value" value="0" readonly><button type="button" class="btn-counter" onclick="actualizarContador('ajo', 1)">+</button></div>
+          </div>
+          
+          <div class="counter-item"><div class="counter-label">🌿 Cilantro</div>
+            <div class="counter-controls"><button type="button" class="btn-counter" onclick="actualizarContador('cilantro', -1)">-</button><input type="text" id="cilantro" class="counter-value" value="0" readonly><button type="button" class="btn-counter" onclick="actualizarContador('cilantro', 1)">+</button></div>
+          </div>
+
+          <div class="counter-item"><div class="counter-label">🧅 Ciboulette</div>
+            <div class="counter-controls"><button type="button" class="btn-counter" onclick="actualizarContador('ciboulette', -1)">-</button><input type="text" id="ciboulette" class="counter-value" value="0" readonly><button type="button" class="btn-counter" onclick="actualizarContador('ciboulette', 1)">+</button></div>
+          </div>
+
+          <div class="counter-item"><div class="counter-label">🥑 Palta</div>
+            <div class="counter-controls"><button type="button" class="btn-counter" onclick="actualizarContador('palta', -1)">-</button><input type="text" id="palta" class="counter-value" value="0" readonly><button type="button" class="btn-counter" onclick="actualizarContador('palta', 1)">+</button></div>
+          </div>
+
+          <div class="counter-item"><div class="counter-label">🍄 Champiñón</div>
+            <div class="counter-controls"><button type="button" class="btn-counter" onclick="actualizarContador('champinon', -1)">-</button><input type="text" id="champinon" class="counter-value" value="0" readonly><button type="button" class="btn-counter" onclick="actualizarContador('champinon', 1)">+</button></div>
+          </div>
+
+          <div class="counter-item"><div class="counter-label">⚫ Aceituna</div>
+            <div class="counter-controls"><button type="button" class="btn-counter" onclick="actualizarContador('aceituna', -1)">-</button><input type="text" id="aceituna" class="counter-value" value="0" readonly><button type="button" class="btn-counter" onclick="actualizarContador('aceituna', 1)">+</button></div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <label for="notas">Notas / Observaciones</label>
+          <input type="text" id="notas" class="form-control-ios" autocomplete="off" placeholder="Ej: Entregar después de las 18:00">
+        </div>
+
+        <button type="submit" class="btn-success-ios" id="btnSubmit">
+          <span class="material-icons-round">cloud_upload</span> Registrar Pedido
+        </button>
+
+      </form>
+    </div>
+
+    <!-- VISTA 2: HISTORIAL DE PEDIDOS -->
+    <div id="vista-historial" style="display:none;">
+      <div id="historialContainer"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const swalGlass = { customClass: { popup: 'glass-swal', confirmButton: 'glass-swal-btn' }, background: 'transparent' };
+    const inputFecha = document.getElementById('fechaEntrega');
+    const hoy = new Date().toISOString().split('T')[0];
+    
+    // Asignamos tu URL real a la constante
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzwqzme_Z4vzSYxChX2urBw9GCe4FNDfmyQyX-XtfNDUR_0hb53eQlD2U_Pk4ECafhoYA/exec";
+
+    // MOTOR DE COMUNICACIÓN CON LA BASE DE DATOS (REEMPLAZA A google.script.run)
+    async function apiCall(accion, datos = null) {
+      const payload = { accion: accion };
+      if (datos) {
+        if (accion === 'obtenerDetalle') payload.fila = datos;
+        else payload.datos = datos;
+      }
+
+      const respuesta = await fetch(URL_APPS_SCRIPT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        redirect: 'follow', // Vital para evitar los bloqueos de Google
+        body: JSON.stringify(payload)
+      });
+      
+      const resultado = await respuesta.json();
+      if (resultado.status === 'error') throw new Error(resultado.message);
+      return resultado.data;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      inputFecha.value = hoy;
+      const savedTheme = localStorage.getItem('theme_mayo');
+      if (savedTheme === 'dark') { 
+        document.documentElement.setAttribute('data-theme', 'dark'); 
+        document.getElementById('themeToggle').checked = true; 
+      }
+      cargarDatosServidor();
+    });
+
+    document.getElementById('themeToggle').addEventListener('change', (e) => {
+      const theme = e.target.checked ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme); 
+      localStorage.setItem('theme_mayo', theme);
+    });
+
+    function switchTab(tabName) {
+      document.getElementById('tab-ingreso').classList.remove('active');
+      document.getElementById('tab-historial').classList.remove('active');
+      document.getElementById('vista-ingreso').style.display = 'none';
+      document.getElementById('vista-historial').style.display = 'none';
+      
+      document.getElementById('tab-' + tabName).classList.add('active');
+      document.getElementById('vista-' + tabName).style.display = 'block';
+
+      if (tabName === 'historial') {
+        document.getElementById('loaderText').textContent = 'Sincronizando historial...';
+        cargarDatosServidor();
+      }
+    }
+
+    async function cargarDatosServidor() {
+      document.getElementById('loaderFull').style.display = 'flex';
+      
+      try {
+        const pendientes = await apiCall('obtenerPendientes');
+        
+        const selector = document.getElementById('selectorPedido');
+        selector.innerHTML = '<option value="">-- Crear Nuevo Pedido --</option>';
+        
+        const histContainer = document.getElementById('historialContainer');
+        let htmlOutput = "";
+        
+        if (!pendientes || pendientes.length === 0) {
+          htmlOutput = '<p style="text-align:center; font-weight:600; color: var(--text-secondary); margin-top:20px;">No hay pedidos en estado "Pendiente" en este momento.</p>';
+        } else {
+          pendientes.forEach(function(p) {
+            let opt = document.createElement('option');
+            opt.value = p.fila; 
+            opt.text = p.texto;
+            selector.appendChild(opt);
+
+            let itemsHtml = '';
+            if(p.ajo > 0) itemsHtml += `<span class="history-item">🧄 Ajo: ${p.ajo}</span>`;
+            if(p.cilantro > 0) itemsHtml += `<span class="history-item">🌿 Cilantro: ${p.cilantro}</span>`;
+            if(p.ciboulette > 0) itemsHtml += `<span class="history-item">🧅 Ciboulette: ${p.ciboulette}</span>`;
+            if(p.palta > 0) itemsHtml += `<span class="history-item">🥑 Palta: ${p.palta}</span>`;
+            if(p.champinon > 0) itemsHtml += `<span class="history-item">🍄 Champiñón: ${p.champinon}</span>`;
+            if(p.aceituna > 0) itemsHtml += `<span class="history-item">⚫ Aceituna: ${p.aceituna}</span>`;
+
+            htmlOutput += `
+              <div class="history-card">
+                <div class="history-header">
+                  <h4 class="history-title">${p.cliente}</h4>
+                  <span class="history-date">📅 Entrega: ${p.fechaStr}</span>
+                </div>
+                <div class="history-body">${itemsHtml}</div>
+                <button type="button" class="btn-edit-hist" onclick="editarDesdeHistorial(${p.fila})">
+                  <span class="material-icons-round" style="font-size:18px;">edit_document</span> Editar este Pedido
+                </button>
+              </div>
+            `;
+          });
+        }
+        histContainer.innerHTML = htmlOutput;
+      } catch (err) {
+        document.getElementById('historialContainer').innerHTML = `<p style="color:red; text-align:center; padding: 20px; font-weight: bold;">Error: ${err.message}</p>`;
+      } finally {
+        document.getElementById('loaderFull').style.display = 'none';
+      }
+    }
+
+    function editarDesdeHistorial(fila) {
+      document.getElementById('contenedorBusqueda').style.display = 'block';
+      switchTab('ingreso'); 
+      document.getElementById('selectorPedido').value = fila; 
+      manejarSeleccionPedido(); 
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function manejarSeleccionPedido() {
+      const fila = document.getElementById('selectorPedido').value;
+      const btn = document.getElementById('btnSubmit');
+      
+      if (fila === "") {
+        document.getElementById('pedidoForm').reset();
+        resetearContadores();
+        inputFecha.value = hoy;
+        btn.innerHTML = '<span class="material-icons-round">cloud_upload</span> Registrar Pedido';
+        btn.classList.remove('btn-update-ios');
+        document.getElementById('contenedorBusqueda').style.display = 'none';
+      } else {
+        document.getElementById('loaderFull').style.display = 'flex';
+        document.getElementById('loaderText').textContent = 'Cargando datos del pedido...';
+        
+        try {
+          const datos = await apiCall('obtenerDetalle', fila);
+          
+          document.getElementById('cliente').value = datos.cliente;
+          document.getElementById('fechaEntrega').value = datos.fechaEntrega;
+          document.getElementById('ajo').value = datos.cantAjo || 0;
+          document.getElementById('cilantro').value = datos.cantCilantro || 0;
+          document.getElementById('ciboulette').value = datos.cantCiboulette || 0;
+          document.getElementById('palta').value = datos.cantPalta || 0;
+          document.getElementById('champinon').value = datos.cantChampinon || 0;
+          document.getElementById('aceituna').value = datos.cantAceituna || 0;
+          document.getElementById('notas').value = datos.notas;
+          
+          btn.innerHTML = '<span class="material-icons-round">sync</span> Actualizar Pedido';
+          btn.classList.add('btn-update-ios');
+        } catch (error) {
+          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
+        } finally {
+          document.getElementById('loaderFull').style.display = 'none';
+        }
+      }
+    }
+
+    function actualizarContador(id, cambio) {
+      const input = document.getElementById(id);
+      let valor = parseInt(input.value) + cambio;
+      if (valor < 0) valor = 0;
+      input.value = valor;
+    }
+
+    function resetearContadores() {
+      const ids = ['ajo', 'cilantro', 'ciboulette', 'palta', 'champinon', 'aceituna'];
+      ids.forEach(id => document.getElementById(id).value = '0');
+    }
+
+    document.getElementById('pedidoForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const filaSeleccionada = document.getElementById('selectorPedido').value;
+      const totalFrascos = ['ajo', 'cilantro', 'ciboulette', 'palta', 'champinon', 'aceituna']
+                           .reduce((acc, id) => acc + parseInt(document.getElementById(id).value), 0);
+
+      if (totalFrascos === 0) {
+        Swal.fire({ ...swalGlass, icon: 'warning', title: 'Atención', text: 'Debes agregar al menos 1 frasco al pedido.' });
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmit');
+      document.getElementById('loaderFull').style.display = 'flex';
+      document.getElementById('loaderText').textContent = 'Procesando...';
+
+      const datos = {
+        cliente: document.getElementById('cliente').value.trim(),
+        fechaEntrega: document.getElementById('fechaEntrega').value,
+        cantAjo: parseInt(document.getElementById('ajo').value),
+        cantCilantro: parseInt(document.getElementById('cilantro').value),
+        cantCiboulette: parseInt(document.getElementById('ciboulette').value),
+        cantPalta: parseInt(document.getElementById('palta').value),
+        cantChampinon: parseInt(document.getElementById('champinon').value),
+        cantAceituna: parseInt(document.getElementById('aceituna').value),
+        notas: document.getElementById('notas').value.trim()
+      };
+
+      try {
+        let respuesta;
+        const esActualizacion = filaSeleccionada !== "";
+        
+        if (esActualizacion) {
+          datos.filaSeleccionada = filaSeleccionada;
+          respuesta = await apiCall('actualizar', datos);
+        } else {
+          respuesta = await apiCall('registrar', datos);
+        }
+
+        if (respuesta.exito) {
+          Swal.fire({ 
+            ...swalGlass, icon: 'success', 
+            title: esActualizacion ? '¡Actualizado!' : '¡Registrado!', 
+            text: esActualizacion ? 'El pedido ha sido modificado.' : 'ID: ' + respuesta.id,
+            timer: 1500, showConfirmButton: false
+          }).then(() => {
+            document.getElementById('pedidoForm').reset();
+            resetearContadores();
+            inputFecha.value = hoy;
+            document.getElementById('selectorPedido').value = "";
+            btn.innerHTML = '<span class="material-icons-round">cloud_upload</span> Registrar Pedido';
+            btn.classList.remove('btn-update-ios');
+            document.getElementById('contenedorBusqueda').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            cargarDatosServidor(); 
+          });
+        } else {
+          throw new Error(respuesta.error);
+        }
+      } catch (error) {
+        Swal.fire({ ...swalGlass, icon: 'error', title: 'Error de Conexión', text: error.message });
+      } finally {
+        document.getElementById('loaderFull').style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
