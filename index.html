@@ -295,11 +295,13 @@
 
             let itemsHtml = '';
             
-            // Etiqueta visual de pago
-            if(p.estadoPago.includes("Pagado")) {
-              itemsHtml += `<span class="history-item" style="background: rgba(52, 199, 89, 0.15); color: #28a745; border-color: #34C759;">${p.estadoPago}</span>`;
+            // Etiqueta visual de pago blindada contra errores
+            let estadoSeguro = p.estadoPago || "⏳ Pendiente de pago"; // Si viene vacío, asume pendiente
+            
+            if(estadoSeguro.includes("Pagado")) {
+              itemsHtml += `<span class="history-item" style="background: rgba(52, 199, 89, 0.15); color: #28a745; border-color: #34C759;">${estadoSeguro}</span>`;
             } else {
-              itemsHtml += `<span class="history-item" style="background: rgba(255, 149, 0, 0.15); color: #d35400; border-color: #FF9500;">${p.estadoPago}</span>`;
+              itemsHtml += `<span class="history-item" style="background: rgba(255, 149, 0, 0.15); color: #d35400; border-color: #FF9500;">${estadoSeguro}</span>`;
             }
 
             if(p.ajo > 0) itemsHtml += `<span class="history-item">🧄 Ajo: ${p.ajo}</span>`;
