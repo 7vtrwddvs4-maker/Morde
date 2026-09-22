@@ -217,7 +217,7 @@
     const hoy = new Date().toISOString().split('T')[0];
     
     // Asignamos tu URL real a la constante
-    const URL_APPS_SCRIPT = https://script.google.com/macros/s/AKfycbzYsk0zdbuOhTZ0NUMHYkQU4XNucZabcsXVxNxKxVrEdL2TmtDnWmsioQskA0zXOIMV9A/exec
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzYsk0zdbuOhTZ0NUMHYkQU4XNucZabcsXVxNxKxVrEdL2TmtDnWmsioQskA0zXOIMV9A/exec";
     
     let historialCargado = false; // Variable para optimizar la caché
 
@@ -445,7 +445,7 @@
             document.getElementById('pedidoForm').reset();
             resetearContadores();
             inputFecha.value = hoy;
-            document.getElementById('estadoPago').value = "Pendiente de pago";
+            document.getElementById('estadoPago').value = "⏳ Pendiente de pago";
             document.getElementById('selectorPedido').value = "";
             btn.innerHTML = '<span class="material-icons-round">cloud_upload</span> Registrar Pedido';
             btn.classList.remove('btn-update-ios');
