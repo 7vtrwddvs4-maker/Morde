@@ -50,7 +50,6 @@
     .header-title { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
     .header-title-container { display: flex; align-items: center; }
 
-    /* NUEVO SELECTOR DE TEMA (3 OPCIONES) */
     .theme-selector { display: flex; background: rgba(0,0,0,0.05); border-radius: 20px; padding: 3px; border: 1px solid var(--glass-border); align-items: center; }
     [data-theme="dark"] .theme-selector { background: rgba(255,255,255,0.1); }
     .theme-btn { background: transparent; border: none; color: var(--text-secondary); padding: 4px 10px; border-radius: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; margin: 0; }
@@ -58,7 +57,7 @@
     .theme-btn.active { background: var(--glass-bg); color: var(--accent-color); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
     .tabs-ios-container { margin-bottom: 20px; }
-    .tabs-ios { display: flex; background: var(--glass-bg); padding: 5px; border-radius: 12px; border: 1px solid var(--glass-border); overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+    .tabs-ios { display: flex; background: var(--glass-bg); padding: 5px; border-radius: 12px; border: 1px solid var(--glass-border); overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
     .tabs-ios::-webkit-scrollbar { display: none; }
     .tab-btn { flex: 0 0 auto; padding: 10px 14px; border: none; background: transparent; border-radius: 8px; font-weight: 700; color: var(--text-secondary); cursor: pointer; font-size: 13px; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 4px; }
     .tab-btn.active { background: var(--input-bg); color: var(--accent-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -68,24 +67,7 @@
     
     label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
     
-    /* CORRECCIÓN PARA QUE LA FECHA NO SOBRESALGA EN CELULARES */
-    .form-control-ios, .form-select-ios { 
-      border-radius: 12px; 
-      border: 1px solid var(--input-border); 
-      height: 44px; 
-      padding: 0 14px; 
-      font-size: 1rem; 
-      background: var(--input-bg); 
-      color: var(--text-primary); 
-      width: 100%; 
-      max-width: 100%; /* Evita desbordamiento */
-      box-sizing: border-box; /* Fuerza los márgenes hacia adentro */
-      margin: 0; /* Limpia márgenes por defecto de iOS */
-      outline: none; 
-      font-weight: 500; 
-      -webkit-appearance: none; /* Desactiva el estilo nativo rebelde de iOS */
-      appearance: none;
-    }
+    .form-control-ios, .form-select-ios { border-radius: 12px; border: 1px solid var(--input-border); height: 44px; padding: 0 14px; font-size: 1rem; background: var(--input-bg); color: var(--text-primary); width: 100%; max-width: 100%; box-sizing: border-box; margin: 0; outline: none; font-weight: 500; -webkit-appearance: none; appearance: none; }
     .form-control-ios:focus, .form-select-ios:focus { border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 149, 0, 0.15); }
 
     .counter-item { display: flex; align-items: center; justify-content: space-between; background: var(--row-bg); padding: 10px 14px; border-radius: 14px; border: 1px solid var(--glass-border); margin-bottom: 12px; }
@@ -106,10 +88,14 @@
     .btn-edit-hist { background: rgba(0, 122, 255, 0.1); color: #0A84FF; border: none; padding: 10px 15px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px;}
     .btn-action-estado { color: #fff; font-size: 14px; padding: 12px; border-radius: 12px; border: none; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; }
 
+    /* ESTILOS SWAL ACTUALIZADOS */
     .glass-swal { background: var(--glass-bg) !important; backdrop-filter: blur(40px) saturate(200%) !important; border: 1px solid var(--glass-border) !important; border-radius: 24px !important; color: var(--text-primary) !important; }
     .glass-swal .swal2-title { color: var(--text-primary) !important; }
     .glass-swal .swal2-html-container { color: var(--text-secondary) !important; }
-    .glass-swal-btn { background: var(--accent-color) !important; border-radius: 14px !important; font-weight: 600 !important; padding: 12px 28px !important; }
+    .glass-swal-btn { background: var(--success-color) !important; border-radius: 14px !important; font-weight: 600 !important; padding: 12px 28px !important; }
+    .glass-swal-deny { background: #0A84FF !important; border-radius: 14px !important; font-weight: 600 !important; padding: 12px 28px !important; color: white !important;}
+    .glass-swal-cancel { background: rgba(0,0,0,0.1) !important; color: var(--text-primary) !important; border-radius: 14px !important; font-weight: 600 !important;}
+    [data-theme="dark"] .glass-swal-cancel { background: rgba(255,255,255,0.1) !important; color: white !important;}
     
     .ios-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--glass-bg); backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
     .spinner-ios { width: 45px; height: 45px; border: 4px solid var(--glass-border); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -129,7 +115,6 @@
       <h2 class="header-title" style="margin-left: 10px; font-size: 18px;">Pedidos Mayo</h2>
     </div>
     
-    <!-- NUEVO CONTRO DE TEMAS -->
     <div class="theme-selector">
       <button type="button" class="theme-btn" data-theme-val="light" onclick="setTheme('light')" title="Modo Claro"><span class="material-icons-round">light_mode</span></button>
       <button type="button" class="theme-btn" data-theme-val="auto" onclick="setTheme('auto')" title="Modo Automático"><span class="material-icons-round">brightness_auto</span></button>
@@ -141,10 +126,10 @@
     
     <div class="tabs-ios-container">
       <div class="tabs-ios">
-        <button id="tab-ingreso" class="tab-btn active" onclick="switchTab('ingreso')"><span class="material-icons-round">post_add</span> Ingreso</button>
-        <button id="tab-pendientes" class="tab-btn" onclick="switchTab('pendientes')"><span class="material-icons-round">pending_actions</span> Pendientes</button>
-        <button id="tab-listos" class="tab-btn" onclick="switchTab('listos')"><span class="material-icons-round">done_all</span> Listos</button>
-        <button id="tab-entregados" class="tab-btn" onclick="switchTab('entregados')"><span class="material-icons-round">inventory_2</span> Entregados</button>
+        <button id="tab-ingreso" class="tab-btn active" onclick="switchTab('ingreso', this)"><span class="material-icons-round">post_add</span> Ingreso</button>
+        <button id="tab-pendientes" class="tab-btn" onclick="switchTab('pendientes', this)"><span class="material-icons-round">pending_actions</span> Pendientes</button>
+        <button id="tab-listos" class="tab-btn" onclick="switchTab('listos', this)"><span class="material-icons-round">done_all</span> Listos</button>
+        <button id="tab-entregados" class="tab-btn" onclick="switchTab('entregados', this)"><span class="material-icons-round">inventory_2</span> Entregados</button>
       </div>
     </div>
 
@@ -223,21 +208,26 @@
   </div>
 
   <script>
-    const swalGlass = { customClass: { popup: 'glass-swal', confirmButton: 'glass-swal-btn' }, background: 'transparent' };
+    const swalGlass = { 
+      customClass: { 
+        popup: 'glass-swal', 
+        confirmButton: 'glass-swal-btn',
+        denyButton: 'glass-swal-deny',
+        cancelButton: 'glass-swal-cancel'
+      }, 
+      background: 'transparent' 
+    };
     const inputFecha = document.getElementById('fechaEntrega');
     const hoy = new Date().toISOString().split('T')[0];
     
-    // URL DE APPS SCRIPT
+    // REEMPLAZA ESTO CON TU URL DE APPS SCRIPT
     const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzYsk0zdbuOhTZ0NUMHYkQU4XNucZabcsXVxNxKxVrEdL2TmtDnWmsioQskA0zXOIMV9A/exec";
     
     let historialCargado = false; 
 
-    // ---- LÓGICA DE TEMA CLARO/AUTO/OSCURO ----
     function setTheme(mode) {
       localStorage.setItem('theme_mayo', mode);
       applyTheme(mode);
-      
-      // Actualizar estado visual de los botones
       document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`.theme-btn[data-theme-val="${mode}"]`).classList.add('active');
     }
@@ -252,13 +242,9 @@
       document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     }
 
-    // Escuchar si el celular cambia de tema mientras la app está abierta en modo "auto"
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (localStorage.getItem('theme_mayo') === 'auto') {
-        applyTheme('auto');
-      }
+      if (localStorage.getItem('theme_mayo') === 'auto') applyTheme('auto');
     });
-    // ------------------------------------------
 
     async function apiCall(accion, datos = null) {
       const payload = { accion: accion };
@@ -279,15 +265,12 @@
 
     document.addEventListener('DOMContentLoaded', function() {
       inputFecha.value = hoy;
-      
-      // Cargar el tema preferido o 'auto' por defecto
       const savedTheme = localStorage.getItem('theme_mayo') || 'auto';
       setTheme(savedTheme);
-      
       cargarDatosServidor();
     });
 
-    function switchTab(tabName) {
+    function switchTab(tabName, btnElement = null) {
       const tabs = ['ingreso', 'pendientes', 'listos', 'entregados'];
       tabs.forEach(t => {
         document.getElementById('tab-' + t).classList.remove('active');
@@ -296,6 +279,11 @@
       
       document.getElementById('tab-' + tabName).classList.add('active');
       document.getElementById('vista-' + tabName).style.display = 'block';
+
+      // MAGIA UX: SCROLL AUTOMÁTICO EN CELULARES
+      if (btnElement) {
+        btnElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
 
       if (tabName !== 'ingreso' && !historialCargado) {
         document.getElementById('loaderText').textContent = 'Sincronizando bandejas...';
@@ -309,9 +297,10 @@
       try {
         const pedidos = await apiCall('obtenerTodos');
         
+        // AHORA ENTREGADOS TAMBIÉN APARECE EN EL BUSCADOR DE EDICIÓN
         const selector = document.getElementById('selectorPedido');
         selector.innerHTML = '<option value="">-- Crear Nuevo Pedido --</option>';
-        [...pedidos.pendientes, ...pedidos.listos].forEach(p => {
+        [...pedidos.pendientes, ...pedidos.listos, ...pedidos.entregados].forEach(p => {
           let opt = document.createElement('option');
           opt.value = p.fila; opt.text = p.texto;
           selector.appendChild(opt);
@@ -357,6 +346,9 @@
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado(${p.fila}, 'Listo')" style="background: linear-gradient(135deg, #0A84FF, #0056b3); box-shadow: 0 4px 10px rgba(10, 132, 255, 0.3);"><span class="material-icons-round">done</span> Marcar como Listo</button>`;
           } else if(tipo === 'listo') {
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado(${p.fila}, 'Entregado')" style="background: linear-gradient(135deg, #30D158, #28a745); box-shadow: 0 4px 10px rgba(48, 209, 88, 0.3);"><span class="material-icons-round">inventory_2</span> Marcar como Entregado</button>`;
+          } else if(tipo === 'entregado' && !estadoSeguro.includes("Pagado")) {
+            // NUEVO BOTÓN: Pago rápido desde la pestaña de Entregados
+            botonesAccion += `<button type="button" class="btn-action-estado" onclick="marcarPagadoRapido(${p.fila})" style="background: linear-gradient(135deg, #FF9500, #D35400); box-shadow: 0 4px 10px rgba(255, 149, 0, 0.3);"><span class="material-icons-round">payments</span> Registrar Pago Rápido</button>`;
           }
 
           htmlOutput += `
@@ -384,6 +376,50 @@
       } catch (error) {
         Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
         document.getElementById('loaderFull').style.display = 'none';
+      }
+    }
+
+    // MAGIA UX: LÓGICA DEL NUEVO BOTÓN DE PAGO RÁPIDO
+    async function marcarPagadoRapido(fila) {
+      const result = await Swal.fire({
+        ...swalGlass,
+        title: 'Registrar Pago',
+        text: '¿Cómo pagó el cliente?',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: '<span class="material-icons-round" style="vertical-align: middle;">account_balance</span> Transferencia',
+        denyButtonText: '<span class="material-icons-round" style="vertical-align: middle;">payments</span> Efectivo',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#34C759',
+        denyButtonColor: '#0A84FF'
+      });
+
+      if (result.isConfirmed || result.isDenied) {
+        let nuevoPago = result.isConfirmed ? '✅ Pagado (Transferencia)' : '✅ Pagado (Efectivo)';
+        document.getElementById('loaderFull').style.display = 'flex';
+        document.getElementById('loaderText').textContent = 'Registrando pago...';
+        
+        try {
+          const datos = await apiCall('obtenerDetalle', fila);
+          datos.estadoPago = nuevoPago;
+          datos.filaSeleccionada = fila;
+          
+          datos.cantAjo = datos.cantAjo || 0;
+          datos.cantCilantro = datos.cantCilantro || 0;
+          datos.cantCiboulette = datos.cantCiboulette || 0;
+          datos.cantPalta = datos.cantPalta || 0;
+          datos.cantChampinon = datos.cantChampinon || 0;
+          datos.cantAceituna = datos.cantAceituna || 0;
+          datos.cantSpicy = datos.cantSpicy || 0;
+
+          await apiCall('actualizar', datos);
+          historialCargado = false; 
+          await cargarDatosServidor();
+          Swal.fire({ ...swalGlass, icon: 'success', title: '¡Pago registrado!', showConfirmButton: false, timer: 1500 });
+        } catch (error) {
+          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
+          document.getElementById('loaderFull').style.display = 'none';
+        }
       }
     }
 
