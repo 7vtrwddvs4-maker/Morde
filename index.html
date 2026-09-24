@@ -50,7 +50,6 @@
     .header-title { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
     .header-title-container { display: flex; align-items: center; }
 
-    /* Estilos de pestañas (Con scroll horizontal para celulares) */
     .tabs-ios-container { margin-bottom: 20px; }
     .tabs-ios { display: flex; background: var(--glass-bg); padding: 5px; border-radius: 12px; border: 1px solid var(--glass-border); overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
     .tabs-ios::-webkit-scrollbar { display: none; }
@@ -71,20 +70,22 @@
     .form-control-ios, .form-select-ios { border-radius: 12px; border: 1px solid var(--input-border); height: 44px; padding: 0 14px; font-size: 1rem; background: var(--input-bg); color: var(--text-primary); width: 100%; outline: none; font-weight: 500; }
     .form-control-ios:focus, .form-select-ios:focus { border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(255, 149, 0, 0.15); }
 
+    /* CONTADORES CORREGIDOS PARA CELULAR */
     .counter-item { display: flex; align-items: center; justify-content: space-between; background: var(--row-bg); padding: 10px 14px; border-radius: 14px; border: 1px solid var(--glass-border); margin-bottom: 12px; }
-    .counter-label { flex: 0 0 120px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
-    .counter-controls { display: flex; align-items: center; background: var(--input-bg); border-radius: 10px; padding: 4px; border: 1px solid var(--input-border); }
-    .btn-counter { background: transparent; color: var(--text-primary); border: none; width: 34px; height: 34px; font-size: 22px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; }
-    
+    .counter-label { flex: 1; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
+    .counter-controls { display: flex; align-items: center; justify-content: space-between; width: 110px; background: var(--input-bg); border-radius: 10px; padding: 4px; border: 1px solid var(--input-border); flex-shrink: 0; }
+    .btn-counter { background: transparent; color: var(--text-primary); border: none; width: 32px; height: 32px; font-size: 20px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; padding: 0; margin: 0; flex-shrink: 0;}
+    .counter-value { width: 36px !important; min-width: 36px !important; text-align: center; font-size: 1.1rem; font-weight: 700; border: none; background: transparent; color: var(--text-primary); outline: none; pointer-events: none; padding: 0; margin: 0; flex-shrink: 0;}
+
+    /* HISTORIAL EN FORMATO LISTA VERTICAL */
     .history-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: var(--glass-shadow); }
     .history-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; margin-bottom: 12px; }
     .history-title { font-weight: 800; color: var(--text-primary); font-size: 17px; margin:0; letter-spacing: -0.5px;}
     .history-date { font-size: 12px; color: var(--text-secondary); font-weight: 700; background: var(--row-bg); padding: 5px 10px; border-radius: 8px;}
-    .history-body { margin-bottom: 15px; line-height: 2.2; }
-    .history-item { display: inline-block; background: var(--row-bg); padding: 5px 10px; border-radius: 8px; margin: 0 6px 6px 0; font-weight: 600; font-size: 13px; color: var(--text-primary); border: 1px solid var(--glass-border);}
+    .history-body { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+    .history-item { display: block; background: var(--row-bg); padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 14px; color: var(--text-primary); border: 1px solid var(--glass-border); margin: 0;}
     
     .btn-success-ios { background: linear-gradient(135deg, #34C759, #28a745); box-shadow: 0 5px 15px rgba(52, 199, 89, 0.3); color: #ffffff !important; width: 100%; font-size: 16px; padding: 15px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-success-ios:active { transform: scale(0.98); }
     .btn-update-ios { background: linear-gradient(135deg, #FF9500, #FF3B30); box-shadow: 0 5px 15px rgba(255, 149, 0, 0.3); }
     .btn-edit-hist { background: rgba(0, 122, 255, 0.1); color: #0A84FF; border: none; padding: 10px 15px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px;}
     .btn-action-estado { color: #fff; font-size: 14px; padding: 12px; border-radius: 12px; border: none; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; }
@@ -93,7 +94,6 @@
     .glass-swal .swal2-title { color: var(--text-primary) !important; }
     .glass-swal .swal2-html-container { color: var(--text-secondary) !important; }
     .glass-swal-btn { background: var(--accent-color) !important; border-radius: 14px !important; font-weight: 600 !important; padding: 12px 28px !important; }
-    .glass-swal .swal2-success-circular-line-left, .glass-swal .swal2-success-circular-line-right, .glass-swal .swal2-success-fix { background-color: transparent !important; }
     
     .ios-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--glass-bg); backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
     .spinner-ios { width: 45px; height: 45px; border: 4px solid var(--glass-border); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -170,6 +170,10 @@
           <div class="counter-item"><div class="counter-label">⚫ Aceituna</div>
             <div class="counter-controls"><button type="button" class="btn-counter" onclick="actualizarContador('aceituna', -1)">-</button><input type="text" id="aceituna" class="counter-value" value="0" readonly><button type="button" class="btn-counter" onclick="actualizarContador('aceituna', 1)">+</button></div>
           </div>
+          <!-- NUEVA MAYONESA SPICY -->
+          <div class="counter-item"><div class="counter-label">🌶️ Spicy</div>
+            <div class="counter-controls"><button type="button" class="btn-counter" onclick="actualizarContador('spicy', -1)">-</button><input type="text" id="spicy" class="counter-value" value="0" readonly><button type="button" class="btn-counter" onclick="actualizarContador('spicy', 1)">+</button></div>
+          </div>
         </div>
 
         <div class="glass-card mb-3">
@@ -193,20 +197,10 @@
       </form>
     </div>
 
-    <!-- VISTA 2: PENDIENTES -->
-    <div id="vista-pendientes" style="display:none;">
-      <div id="pendientesContainer"></div>
-    </div>
-
-    <!-- VISTA 3: LISTOS -->
-    <div id="vista-listos" style="display:none;">
-      <div id="listosContainer"></div>
-    </div>
-
-    <!-- VISTA 4: ENTREGADOS -->
-    <div id="vista-entregados" style="display:none;">
-      <div id="entregadosContainer"></div>
-    </div>
+    <!-- BANDEJAS -->
+    <div id="vista-pendientes" style="display:none;"><div id="pendientesContainer"></div></div>
+    <div id="vista-listos" style="display:none;"><div id="listosContainer"></div></div>
+    <div id="vista-entregados" style="display:none;"><div id="entregadosContainer"></div></div>
 
   </div>
 
@@ -215,7 +209,6 @@
     const inputFecha = document.getElementById('fechaEntrega');
     const hoy = new Date().toISOString().split('T')[0];
     
-    // AQUÍ ESTÁ TU URL EXACTA Y FUNCIONANDO
     const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzYsk0zdbuOhTZ0NUMHYkQU4XNucZabcsXVxNxKxVrEdL2TmtDnWmsioQskA0zXOIMV9A/exec";
     
     let historialCargado = false; 
@@ -275,7 +268,6 @@
       try {
         const pedidos = await apiCall('obtenerTodos');
         
-        // Llenar selector de edición con TODOS los pedidos (excepto los Entregados para no ensuciar)
         const selector = document.getElementById('selectorPedido');
         selector.innerHTML = '<option value="">-- Crear Nuevo Pedido --</option>';
         [...pedidos.pendientes, ...pedidos.listos].forEach(p => {
@@ -284,7 +276,6 @@
           selector.appendChild(opt);
         });
         
-        // Renderizar las 3 vistas
         renderLista(pedidos.pendientes, 'pendientesContainer', 'pendiente');
         renderLista(pedidos.listos, 'listosContainer', 'listo');
         renderLista(pedidos.entregados, 'entregadosContainer', 'entregado');
@@ -297,7 +288,6 @@
       }
     }
 
-    // Función molde para crear las tarjetas HTML
     function renderLista(lista, contenedorId, tipo) {
       let htmlOutput = "";
       if (lista.length === 0) {
@@ -318,8 +308,8 @@
           if(p.palta > 0) itemsHtml += `<span class="history-item">🥑 Palta: ${p.palta}</span>`;
           if(p.champinon > 0) itemsHtml += `<span class="history-item">🍄 Champiñón: ${p.champinon}</span>`;
           if(p.aceituna > 0) itemsHtml += `<span class="history-item">⚫ Aceituna: ${p.aceituna}</span>`;
+          if(p.spicy > 0) itemsHtml += `<span class="history-item">🌶️ Spicy: ${p.spicy}</span>`;
 
-          // Botones de transición de estado
           let botonesAccion = `<button type="button" class="btn-edit-hist" onclick="editarDesdeHistorial(${p.fila})"><span class="material-icons-round" style="font-size:18px;">edit_document</span> Editar este Pedido</button>`;
           
           if(tipo === 'pendiente') {
@@ -343,14 +333,12 @@
       document.getElementById(contenedorId).innerHTML = htmlOutput;
     }
 
-    // Nueva función para mover pedidos de bandeja
     async function cambiarEstado(fila, nuevoEstado) {
       document.getElementById('loaderFull').style.display = 'flex';
       document.getElementById('loaderText').textContent = 'Moviendo pedido...';
-      
       try {
         await apiCall('cambiarEstado', { fila: fila, nuevoEstado: nuevoEstado });
-        historialCargado = false; // Forzar recarga de los datos
+        historialCargado = false; 
         await cargarDatosServidor();
       } catch (error) {
         Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
@@ -369,7 +357,6 @@
     async function manejarSeleccionPedido() {
       const fila = document.getElementById('selectorPedido').value;
       const btn = document.getElementById('btnSubmit');
-      
       if (fila === "") {
         document.getElementById('pedidoForm').reset();
         resetearContadores();
@@ -381,7 +368,6 @@
       } else {
         document.getElementById('loaderFull').style.display = 'flex';
         document.getElementById('loaderText').textContent = 'Cargando datos...';
-        
         try {
           const datos = await apiCall('obtenerDetalle', fila);
           document.getElementById('cliente').value = datos.cliente;
@@ -392,6 +378,7 @@
           document.getElementById('palta').value = datos.cantPalta || 0;
           document.getElementById('champinon').value = datos.cantChampinon || 0;
           document.getElementById('aceituna').value = datos.cantAceituna || 0;
+          document.getElementById('spicy').value = datos.cantSpicy || 0; // Carga Spicy
           document.getElementById('estadoPago').value = datos.estadoPago || "⏳ Pendiente de pago";
           document.getElementById('notas').value = datos.notas;
           
@@ -413,15 +400,14 @@
     }
 
     function resetearContadores() {
-      const ids = ['ajo', 'cilantro', 'ciboulette', 'palta', 'champinon', 'aceituna'];
+      const ids = ['ajo', 'cilantro', 'ciboulette', 'palta', 'champinon', 'aceituna', 'spicy']; // Se agregó Spicy al reset
       ids.forEach(id => document.getElementById(id).value = '0');
     }
 
     document.getElementById('pedidoForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-
       const filaSeleccionada = document.getElementById('selectorPedido').value;
-      const totalFrascos = ['ajo', 'cilantro', 'ciboulette', 'palta', 'champinon', 'aceituna']
+      const totalFrascos = ['ajo', 'cilantro', 'ciboulette', 'palta', 'champinon', 'aceituna', 'spicy']
                            .reduce((acc, id) => acc + parseInt(document.getElementById(id).value), 0);
 
       if (totalFrascos === 0) {
@@ -442,6 +428,7 @@
         cantPalta: parseInt(document.getElementById('palta').value),
         cantChampinon: parseInt(document.getElementById('champinon').value),
         cantAceituna: parseInt(document.getElementById('aceituna').value),
+        cantSpicy: parseInt(document.getElementById('spicy').value), // Envía Spicy
         estadoPago: document.getElementById('estadoPago').value,
         notas: document.getElementById('notas').value.trim()
       };
