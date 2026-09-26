@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" translate="no">
 <head>
   <base target="_top">
   <meta charset="UTF-8">
+  <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
   <link rel="manifest" href="manifest.json">
@@ -357,7 +358,6 @@
           } else if(tipo === 'listo') {
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado(${p.fila}, 'Entregado')" style="background: linear-gradient(135deg, #30D158, #28a745); box-shadow: 0 4px 10px rgba(48, 209, 88, 0.3);"><span class="material-icons-round">inventory_2</span> Marcar como Entregado</button>`;
           } else if(tipo === 'entregado' && !estadoSeguro.includes("Pagado")) {
-            // NUEVO BOTÓN: Pago rápido desde la pestaña de Entregados
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="marcarPagadoRapido(${p.fila})" style="background: linear-gradient(135deg, #FF9500, #D35400); box-shadow: 0 4px 10px rgba(255, 149, 0, 0.3);"><span class="material-icons-round">payments</span> Registrar Pago Rápido</button>`;
           }
 
@@ -389,7 +389,6 @@
       }
     }
 
-    // MAGIA UX: LÓGICA DEL NUEVO BOTÓN DE PAGO RÁPIDO
     async function marcarPagadoRapido(fila) {
       const result = await Swal.fire({
         ...swalGlass,
