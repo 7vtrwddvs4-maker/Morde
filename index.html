@@ -471,11 +471,22 @@
         document.getElementById('loaderText').textContent = 'Eliminando...';
         try {
           await db.collection("pedidos").doc(idFirebase).delete();
-          // Firebase detectará el cambio y lo borrará de la pantalla automáticamente
-        } catch (error) {
-          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
-        } finally {
+          
+          // Apagamos el loader antes de lanzar la confirmación
           document.getElementById('loaderFull').style.display = 'none';
+          
+          // Lanzamos el ticket verde de éxito
+          Swal.fire({ 
+            ...swalGlass, 
+            icon: 'success', 
+            title: '¡Eliminado!', 
+            text: 'El pedido fue borrado de la base de datos.',
+            showConfirmButton: false, 
+            timer: 1500 
+          });
+        } catch (error) {
+          document.getElementById('loaderFull').style.display = 'none';
+          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
         }
       }
     }
