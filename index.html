@@ -397,11 +397,22 @@
       document.getElementById('loaderText').textContent = 'Moviendo pedido...';
       try {
         await db.collection("pedidos").doc(idFirebase).update({ estadoLogistico: nuevoEstado });
-        // ¡Ya no necesitamos recargar la página! Firebase lo hace solo.
-      } catch (error) {
-        Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
-      } finally {
+        
+        // Apagamos el loader antes de lanzar la alerta
         document.getElementById('loaderFull').style.display = 'none';
+        
+        // Lanzamos el ticket verde de confirmación
+        Swal.fire({ 
+          ...swalGlass, 
+          icon: 'success', 
+          title: '¡Movido!', 
+          text: `El pedido ahora está en "${nuevoEstado}"`,
+          showConfirmButton: false, 
+          timer: 1500 
+        });
+      } catch (error) {
+        document.getElementById('loaderFull').style.display = 'none';
+        Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
       }
     }
 
@@ -414,7 +425,7 @@
         showCancelButton: true,
         confirmButtonText: 'Sí, devolver',
         cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#FF3B30', // Rojo de advertencia
+        confirmButtonColor: '#FF3B30', 
         cancelButtonColor: '#8E8E93'
       });
 
@@ -423,9 +434,21 @@
         document.getElementById('loaderText').textContent = 'Devolviendo pedido...';
         try {
           await db.collection("pedidos").doc(idFirebase).update({ estadoLogistico: estadoDestino });
-        } catch (error) {
-          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
+          
           document.getElementById('loaderFull').style.display = 'none';
+          
+          // Ticket verde también al revertir exitosamente
+          Swal.fire({ 
+            ...swalGlass, 
+            icon: 'success', 
+            title: '¡Devuelto!', 
+            text: `Regresó a "${estadoDestino}"`,
+            showConfirmButton: false, 
+            timer: 1500 
+          });
+        } catch (error) {
+          document.getElementById('loaderFull').style.display = 'none';
+          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
         }
       }
     }
