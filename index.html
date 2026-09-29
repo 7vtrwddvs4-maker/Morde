@@ -365,8 +365,14 @@
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado('${p.fila}', 'Listo')" style="background: linear-gradient(135deg, #0A84FF, #0056b3); box-shadow: 0 4px 10px rgba(10, 132, 255, 0.3);"><span class="material-icons-round">done</span> Marcar como Listo</button>`;
           } else if(tipo === 'listo') {
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado('${p.fila}', 'Entregado')" style="background: linear-gradient(135deg, #30D158, #28a745); box-shadow: 0 4px 10px rgba(48, 209, 88, 0.3);"><span class="material-icons-round">inventory_2</span> Marcar como Entregado</button>`;
-          } else if(tipo === 'entregado' && !estadoSeguro.includes("Pagado")) {
-            botonesAccion += `<button type="button" class="btn-action-estado" onclick="marcarPagadoRapido('${p.fila}')" style="background: linear-gradient(135deg, #FF9500, #D35400); box-shadow: 0 4px 10px rgba(255, 149, 0, 0.3);"><span class="material-icons-round">payments</span> Registrar Pago Rápido</button>`;
+            // Nuevo botón de reversa
+            botonesAccion += `<button type="button" class="btn-action-estado" onclick="revertirEstado('${p.fila}', 'Pendiente')" style="background: transparent; color: #FF3B30; border: 1px solid #FF3B30; box-shadow: none; margin-top: 8px;"><span class="material-icons-round">undo</span> Devolver a Pendientes</button>`;
+          } else if(tipo === 'entregado') {
+            if (!estadoSeguro.includes("Pagado")) {
+              botonesAccion += `<button type="button" class="btn-action-estado" onclick="marcarPagadoRapido('${p.fila}')" style="background: linear-gradient(135deg, #FF9500, #D35400); box-shadow: 0 4px 10px rgba(255, 149, 0, 0.3);"><span class="material-icons-round">payments</span> Registrar Pago Rápido</button>`;
+            }
+            // Nuevo botón de reversa
+            botonesAccion += `<button type="button" class="btn-action-estado" onclick="revertirEstado('${p.fila}', 'Listo')" style="background: transparent; color: #FF3B30; border: 1px solid #FF3B30; box-shadow: none; margin-top: 8px;"><span class="material-icons-round">undo</span> Devolver a Listos</button>`;
           }
 
           htmlOutput += `
@@ -394,6 +400,31 @@
         Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
       } finally {
         document.getElementById('loaderFull').style.display = 'none';
+      }
+    }
+
+    async function revertirEstado(idFirebase, estadoDestino) {
+      const result = await Swal.fire({
+        ...swalGlass,
+        title: '¿Revertir pedido?',
+        text: `¿Estás seguro que deseas devolver este pedido a la pestaña de "${estadoDestino}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, devolver',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#FF3B30', // Rojo de advertencia
+        cancelButtonColor: '#8E8E93'
+      });
+
+      if (result.isConfirmed) {
+        document.getElementById('loaderFull').style.display = 'flex';
+        document.getElementById('loaderText').textContent = 'Devolviendo pedido...';
+        try {
+          await db.collection("pedidos").doc(idFirebase).update({ estadoLogistico: estadoDestino });
+        } catch (error) {
+          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
+          document.getElementById('loaderFull').style.display = 'none';
+        }
       }
     }
 
