@@ -15,6 +15,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- FIREBASE SDK (Versión Compat para PWA estáticas) -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
   
   <style>
     :root {
@@ -89,7 +93,6 @@
     .btn-edit-hist { background: rgba(0, 122, 255, 0.1); color: #0A84FF; border: none; padding: 10px 15px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px;}
     .btn-action-estado { color: #fff; font-size: 14px; padding: 12px; border-radius: 12px; border: none; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; }
 
-    /* ESTILOS SWAL ACTUALIZADOS */
     .glass-swal { background: var(--glass-bg) !important; backdrop-filter: blur(40px) saturate(200%) !important; border: 1px solid var(--glass-border) !important; border-radius: 24px !important; color: var(--text-primary) !important; }
     .glass-swal .swal2-title { color: var(--text-primary) !important; }
     .glass-swal .swal2-html-container { color: var(--text-secondary) !important; }
@@ -98,7 +101,6 @@
     .glass-swal-cancel { background: rgba(0,0,0,0.1) !important; color: var(--text-primary) !important; border-radius: 14px !important; font-weight: 600 !important;}
     [data-theme="dark"] .glass-swal-cancel { background: rgba(255,255,255,0.1) !important; color: white !important;}
     
-    /* CORRECCIÓN ANIMACIÓN TICKET (SWEETALERT) PARA iOS */
     .swal2-success-circular-line-left, 
     .swal2-success-circular-line-right, 
     .swal2-success-fix { 
@@ -230,11 +232,21 @@
     };
     const inputFecha = document.getElementById('fechaEntrega');
     const hoy = new Date().toISOString().split('T')[0];
-    
-    // REEMPLAZA ESTO CON TU URL DE APPS SCRIPT
-    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzYsk0zdbuOhTZ0NUMHYkQU4XNucZabcsXVxNxKxVrEdL2TmtDnWmsioQskA0zXOIMV9A/exec";
-    
     let historialCargado = false; 
+
+    // ---- CONFIGURACIÓN DE FIREBASE ----
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjDmvCHcIIN5NIVoLgGCpuZDtYCeqGz_c",
+      authDomain: "pedidos-mayo.firebaseapp.com",
+      projectId: "pedidos-mayo",
+      storageBucket: "pedidos-mayo.firebasestorage.app",
+      messagingSenderId: "151696179421",
+      appId: "1:151696179421:web:eecb6acb6fdd3bd0a39b34"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    // -----------------------------------
 
     function setTheme(mode) {
       localStorage.setItem('theme_mayo', mode);
@@ -257,23 +269,6 @@
       if (localStorage.getItem('theme_mayo') === 'auto') applyTheme('auto');
     });
 
-    async function apiCall(accion, datos = null) {
-      const payload = { accion: accion };
-      if (datos) {
-        if (accion === 'obtenerDetalle') payload.fila = datos;
-        else payload.datos = datos;
-      }
-      const respuesta = await fetch(URL_APPS_SCRIPT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        redirect: 'follow', 
-        body: JSON.stringify(payload)
-      });
-      const resultado = await respuesta.json();
-      if (resultado.status === 'error') throw new Error(resultado.message);
-      return resultado.data;
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
       inputFecha.value = hoy;
       const savedTheme = localStorage.getItem('theme_mayo') || 'auto';
@@ -291,7 +286,6 @@
       document.getElementById('tab-' + tabName).classList.add('active');
       document.getElementById('vista-' + tabName).style.display = 'block';
 
-      // MAGIA UX: SCROLL AUTOMÁTICO EN CELULARES
       if (btnElement) {
         btnElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
       }
@@ -302,28 +296,53 @@
       }
     }
 
+    // CONEXIÓN DIRECTA CON FIRESTORE PARA OBTENER DATOS
     async function cargarDatosServidor() {
       document.getElementById('loaderFull').style.display = 'flex';
       
       try {
-        const pedidos = await apiCall('obtenerTodos');
+        const snapshot = await db.collection("pedidos").orderBy("timestamp", "desc").get();
+        let pendientes = [], listos = [], entregados = [];
         
-        // AHORA ENTREGADOS TAMBIÉN APARECE EN EL BUSCADOR DE EDICIÓN
         const selector = document.getElementById('selectorPedido');
         selector.innerHTML = '<option value="">-- Crear Nuevo Pedido --</option>';
-        [...pedidos.pendientes, ...pedidos.listos, ...pedidos.entregados].forEach(p => {
-          let opt = document.createElement('option');
-          opt.value = p.fila; opt.text = p.texto;
-          selector.appendChild(opt);
+
+        snapshot.forEach(doc => {
+          let data = doc.data();
+          
+          let partesFecha = (data.fechaEntrega || "").split('-');
+          let fechaFormateada = partesFecha.length === 3 ? `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}` : "Sin Fecha";
+
+          let obj = {
+            fila: doc.id,
+            cliente: data.cliente || "Sin Nombre",
+            texto: (data.cliente || "Sin Nombre") + " - " + fechaFormateada,
+            fechaStr: fechaFormateada,
+            ajo: data.cantAjo || 0,
+            cilantro: data.cantCilantro || 0,
+            ciboulette: data.cantCiboulette || 0,
+            palta: data.cantPalta || 0,
+            champinon: data.cantChampinon || 0,
+            aceituna: data.cantAceituna || 0,
+            spicy: data.cantSpicy || 0,
+            estadoPago: data.estadoPago || "⏳ Pendiente de pago",
+            estadoLogistico: data.estadoLogistico || "Pendiente"
+          };
+
+          selector.options.add(new Option(obj.texto, obj.fila));
+
+          if (obj.estadoLogistico === 'Pendiente') pendientes.push(obj);
+          else if (obj.estadoLogistico === 'Listo') listos.push(obj);
+          else if (obj.estadoLogistico === 'Entregado') entregados.push(obj);
         });
         
-        renderLista(pedidos.pendientes, 'pendientesContainer', 'pendiente');
-        renderLista(pedidos.listos, 'listosContainer', 'listo');
-        renderLista(pedidos.entregados, 'entregadosContainer', 'entregado');
+        renderLista(pendientes, 'pendientesContainer', 'pendiente');
+        renderLista(listos, 'listosContainer', 'listo');
+        renderLista(entregados, 'entregadosContainer', 'entregado');
 
         historialCargado = true;
       } catch (err) {
-        Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: err.message });
+        Swal.fire({ ...swalGlass, icon: 'error', title: 'Error de Firebase', text: err.message });
       } finally {
         document.getElementById('loaderFull').style.display = 'none';
       }
@@ -351,14 +370,15 @@
           if(p.aceituna > 0) itemsHtml += `<span class="history-item">⚫ Aceituna: ${p.aceituna}</span>`;
           if(p.spicy > 0) itemsHtml += `<span class="history-item">🌶️ Spicy: ${p.spicy}</span>`;
 
-          let botonesAccion = `<button type="button" class="btn-edit-hist" onclick="editarDesdeHistorial(${p.fila})"><span class="material-icons-round" style="font-size:18px;">edit_document</span> Editar este Pedido</button>`;
+          // ATENCIÓN: Las variables ahora llevan comillas '${p.fila}' porque son textos en Firestore, no números.
+          let botonesAccion = `<button type="button" class="btn-edit-hist" onclick="editarDesdeHistorial('${p.fila}')"><span class="material-icons-round" style="font-size:18px;">edit_document</span> Editar este Pedido</button>`;
           
           if(tipo === 'pendiente') {
-            botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado(${p.fila}, 'Listo')" style="background: linear-gradient(135deg, #0A84FF, #0056b3); box-shadow: 0 4px 10px rgba(10, 132, 255, 0.3);"><span class="material-icons-round">done</span> Marcar como Listo</button>`;
+            botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado('${p.fila}', 'Listo')" style="background: linear-gradient(135deg, #0A84FF, #0056b3); box-shadow: 0 4px 10px rgba(10, 132, 255, 0.3);"><span class="material-icons-round">done</span> Marcar como Listo</button>`;
           } else if(tipo === 'listo') {
-            botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado(${p.fila}, 'Entregado')" style="background: linear-gradient(135deg, #30D158, #28a745); box-shadow: 0 4px 10px rgba(48, 209, 88, 0.3);"><span class="material-icons-round">inventory_2</span> Marcar como Entregado</button>`;
+            botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado('${p.fila}', 'Entregado')" style="background: linear-gradient(135deg, #30D158, #28a745); box-shadow: 0 4px 10px rgba(48, 209, 88, 0.3);"><span class="material-icons-round">inventory_2</span> Marcar como Entregado</button>`;
           } else if(tipo === 'entregado' && !estadoSeguro.includes("Pagado")) {
-            botonesAccion += `<button type="button" class="btn-action-estado" onclick="marcarPagadoRapido(${p.fila})" style="background: linear-gradient(135deg, #FF9500, #D35400); box-shadow: 0 4px 10px rgba(255, 149, 0, 0.3);"><span class="material-icons-round">payments</span> Registrar Pago Rápido</button>`;
+            botonesAccion += `<button type="button" class="btn-action-estado" onclick="marcarPagadoRapido('${p.fila}')" style="background: linear-gradient(135deg, #FF9500, #D35400); box-shadow: 0 4px 10px rgba(255, 149, 0, 0.3);"><span class="material-icons-round">payments</span> Registrar Pago Rápido</button>`;
           }
 
           htmlOutput += `
@@ -376,11 +396,11 @@
       document.getElementById(contenedorId).innerHTML = htmlOutput;
     }
 
-    async function cambiarEstado(fila, nuevoEstado) {
+    async function cambiarEstado(idFirebase, nuevoEstado) {
       document.getElementById('loaderFull').style.display = 'flex';
       document.getElementById('loaderText').textContent = 'Moviendo pedido...';
       try {
-        await apiCall('cambiarEstado', { fila: fila, nuevoEstado: nuevoEstado });
+        await db.collection("pedidos").doc(idFirebase).update({ estadoLogistico: nuevoEstado });
         historialCargado = false; 
         await cargarDatosServidor();
       } catch (error) {
@@ -389,7 +409,7 @@
       }
     }
 
-    async function marcarPagadoRapido(fila) {
+    async function marcarPagadoRapido(idFirebase) {
       const result = await Swal.fire({
         ...swalGlass,
         title: 'Registrar Pago',
@@ -409,19 +429,7 @@
         document.getElementById('loaderText').textContent = 'Registrando pago...';
         
         try {
-          const datos = await apiCall('obtenerDetalle', fila);
-          datos.estadoPago = nuevoPago;
-          datos.filaSeleccionada = fila;
-          
-          datos.cantAjo = datos.cantAjo || 0;
-          datos.cantCilantro = datos.cantCilantro || 0;
-          datos.cantCiboulette = datos.cantCiboulette || 0;
-          datos.cantPalta = datos.cantPalta || 0;
-          datos.cantChampinon = datos.cantChampinon || 0;
-          datos.cantAceituna = datos.cantAceituna || 0;
-          datos.cantSpicy = datos.cantSpicy || 0;
-
-          await apiCall('actualizar', datos);
+          await db.collection("pedidos").doc(idFirebase).update({ estadoPago: nuevoPago });
           historialCargado = false; 
           await cargarDatosServidor();
           Swal.fire({ ...swalGlass, icon: 'success', title: '¡Pago registrado!', showConfirmButton: false, timer: 1500 });
@@ -432,18 +440,19 @@
       }
     }
 
-    function editarDesdeHistorial(fila) {
+    function editarDesdeHistorial(idFirebase) {
       document.getElementById('contenedorBusqueda').style.display = 'block';
       switchTab('ingreso'); 
-      document.getElementById('selectorPedido').value = fila; 
+      document.getElementById('selectorPedido').value = idFirebase; 
       manejarSeleccionPedido(); 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function manejarSeleccionPedido() {
-      const fila = document.getElementById('selectorPedido').value;
+      const idFirebase = document.getElementById('selectorPedido').value;
       const btn = document.getElementById('btnSubmit');
-      if (fila === "") {
+      
+      if (idFirebase === "") {
         document.getElementById('pedidoForm').reset();
         resetearContadores();
         inputFecha.value = hoy;
@@ -454,22 +463,26 @@
       } else {
         document.getElementById('loaderFull').style.display = 'flex';
         document.getElementById('loaderText').textContent = 'Cargando datos...';
+        
         try {
-          const datos = await apiCall('obtenerDetalle', fila);
-          document.getElementById('cliente').value = datos.cliente;
-          document.getElementById('fechaEntrega').value = datos.fechaEntrega;
-          document.getElementById('ajo').value = datos.cantAjo || 0;
-          document.getElementById('cilantro').value = datos.cantCilantro || 0;
-          document.getElementById('ciboulette').value = datos.cantCiboulette || 0;
-          document.getElementById('palta').value = datos.cantPalta || 0;
-          document.getElementById('champinon').value = datos.cantChampinon || 0;
-          document.getElementById('aceituna').value = datos.cantAceituna || 0;
-          document.getElementById('spicy').value = datos.cantSpicy || 0; 
-          document.getElementById('estadoPago').value = datos.estadoPago || "⏳ Pendiente de pago";
-          document.getElementById('notas').value = datos.notas;
-          
-          btn.innerHTML = '<span class="material-icons-round">sync</span> Actualizar Pedido';
-          btn.classList.add('btn-update-ios');
+          const docSnap = await db.collection("pedidos").doc(idFirebase).get();
+          if (docSnap.exists) {
+            const datos = docSnap.data();
+            document.getElementById('cliente').value = datos.cliente || "";
+            document.getElementById('fechaEntrega').value = datos.fechaEntrega || "";
+            document.getElementById('ajo').value = datos.cantAjo || 0;
+            document.getElementById('cilantro').value = datos.cantCilantro || 0;
+            document.getElementById('ciboulette').value = datos.cantCiboulette || 0;
+            document.getElementById('palta').value = datos.cantPalta || 0;
+            document.getElementById('champinon').value = datos.cantChampinon || 0;
+            document.getElementById('aceituna').value = datos.cantAceituna || 0;
+            document.getElementById('spicy').value = datos.cantSpicy || 0; 
+            document.getElementById('estadoPago').value = datos.estadoPago || "⏳ Pendiente de pago";
+            document.getElementById('notas').value = datos.notas || "";
+            
+            btn.innerHTML = '<span class="material-icons-round">sync</span> Actualizar Pedido';
+            btn.classList.add('btn-update-ios');
+          }
         } catch (error) {
           Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
         } finally {
@@ -492,7 +505,7 @@
 
     document.getElementById('pedidoForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const filaSeleccionada = document.getElementById('selectorPedido').value;
+      const idFirebase = document.getElementById('selectorPedido').value;
       const totalFrascos = ['ajo', 'cilantro', 'ciboulette', 'palta', 'champinon', 'aceituna', 'spicy']
                            .reduce((acc, id) => acc + parseInt(document.getElementById(id).value), 0);
 
@@ -503,7 +516,7 @@
 
       const btn = document.getElementById('btnSubmit');
       document.getElementById('loaderFull').style.display = 'flex';
-      document.getElementById('loaderText').textContent = 'Procesando...';
+      document.getElementById('loaderText').textContent = 'Guardando en Firebase...';
 
       const datos = {
         cliente: document.getElementById('cliente').value.trim(),
@@ -520,37 +533,34 @@
       };
 
       try {
-        let respuesta;
-        const esActualizacion = filaSeleccionada !== "";
+        const esActualizacion = idFirebase !== "";
+        
         if (esActualizacion) {
-          datos.filaSeleccionada = filaSeleccionada;
-          respuesta = await apiCall('actualizar', datos);
+          await db.collection("pedidos").doc(idFirebase).update(datos);
         } else {
-          respuesta = await apiCall('registrar', datos);
+          // Asignar datos adicionales a un nuevo pedido
+          datos.estadoLogistico = "Pendiente";
+          datos.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+          await db.collection("pedidos").add(datos);
         }
 
-        if (respuesta.exito) {
-          historialCargado = false; 
-          Swal.fire({ 
-            ...swalGlass, icon: 'success', 
-            title: esActualizacion ? '¡Actualizado!' : '¡Registrado!', 
-            text: esActualizacion ? 'El pedido ha sido modificado.' : 'ID: ' + respuesta.id,
-            timer: 1500, showConfirmButton: false
-          }).then(() => {
-            document.getElementById('pedidoForm').reset();
-            resetearContadores();
-            inputFecha.value = hoy;
-            document.getElementById('estadoPago').value = "⏳ Pendiente de pago";
-            document.getElementById('selectorPedido').value = "";
-            btn.innerHTML = '<span class="material-icons-round">cloud_upload</span> Registrar Pedido';
-            btn.classList.remove('btn-update-ios');
-            document.getElementById('contenedorBusqueda').style.display = 'none';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            cargarDatosServidor(); 
-          });
-        } else {
-          throw new Error(respuesta.error);
-        }
+        historialCargado = false; 
+        Swal.fire({ 
+          ...swalGlass, icon: 'success', 
+          title: esActualizacion ? '¡Actualizado!' : '¡Registrado!', 
+          timer: 1500, showConfirmButton: false
+        }).then(() => {
+          document.getElementById('pedidoForm').reset();
+          resetearContadores();
+          inputFecha.value = hoy;
+          document.getElementById('estadoPago').value = "⏳ Pendiente de pago";
+          document.getElementById('selectorPedido').value = "";
+          btn.innerHTML = '<span class="material-icons-round">cloud_upload</span> Registrar Pedido';
+          btn.classList.remove('btn-update-ios');
+          document.getElementById('contenedorBusqueda').style.display = 'none';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          cargarDatosServidor(); 
+        });
       } catch (error) {
         Swal.fire({ ...swalGlass, icon: 'error', title: 'Error de Conexión', text: error.message });
       } finally {
