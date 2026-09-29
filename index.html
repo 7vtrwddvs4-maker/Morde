@@ -373,6 +373,8 @@
             }
             // Nuevo botón de reversa
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="revertirEstado('${p.fila}', 'Listo')" style="background: transparent; color: #FF3B30; border: 1px solid #FF3B30; box-shadow: none; margin-top: 8px;"><span class="material-icons-round">undo</span> Devolver a Listos</button>`;
+            // Botón de eliminar (Rojo transparente)
+          botonesAccion += `<button type="button" class="btn-action-estado" onclick="eliminarPedido('${p.fila}')" style="background: rgba(255, 59, 48, 0.1); color: #FF3B30; border: 1px solid rgba(255, 59, 48, 0.3); box-shadow: none; margin-top: 8px;"><span class="material-icons-round">delete_outline</span> Eliminar Pedido</button>`;
           }
 
           htmlOutput += `
@@ -423,6 +425,33 @@
           await db.collection("pedidos").doc(idFirebase).update({ estadoLogistico: estadoDestino });
         } catch (error) {
           Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
+          document.getElementById('loaderFull').style.display = 'none';
+        }
+      }
+    }
+
+    async function eliminarPedido(idFirebase) {
+      const result = await Swal.fire({
+        ...swalGlass,
+        title: '¿Eliminar pedido?',
+        text: "Esta acción borrará el pedido permanentemente. ¿Estás seguro?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '<span class="material-icons-round" style="vertical-align: middle;">delete</span> Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#FF3B30',
+        cancelButtonColor: 'rgba(142, 142, 147, 0.5)'
+      });
+
+      if (result.isConfirmed) {
+        document.getElementById('loaderFull').style.display = 'flex';
+        document.getElementById('loaderText').textContent = 'Eliminando...';
+        try {
+          await db.collection("pedidos").doc(idFirebase).delete();
+          // Firebase detectará el cambio y lo borrará de la pantalla automáticamente
+        } catch (error) {
+          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
+        } finally {
           document.getElementById('loaderFull').style.display = 'none';
         }
       }
