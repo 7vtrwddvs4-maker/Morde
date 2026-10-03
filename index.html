@@ -192,6 +192,12 @@
           </div>
         </div>
 
+        <!-- NUEVO CONTENEDOR PARA EL TOTAL -->
+        <div class="glass-card mb-3" style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 700; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase;">Total del Pedido</span>
+          <span id="totalPrecio" style="font-weight: 800; font-size: 1.5rem; color: var(--accent-color);">$0</span>
+        </div>
+
         <div class="glass-card mb-3">
           <label for="estadoPago">Estado de Pago</label>
           <select id="estadoPago" class="form-select-ios">
@@ -302,6 +308,11 @@
           let partesFecha = (data.fechaEntrega || "").split('-');
           let fechaFormateada = partesFecha.length === 3 ? `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}` : "Sin Fecha";
 
+          // CÁLCULO SEGURO PARA PEDIDOS ANTIGUOS SIN TOTAL GUARDADO
+          let q3500 = (data.cantAjo || 0) + (data.cantCilantro || 0) + (data.cantCiboulette || 0) + (data.cantSpicy || 0);
+          let q3800 = (data.cantPalta || 0) + (data.cantChampinon || 0) + (data.cantAceituna || 0);
+          let totalSeguro = data.total || ((q3500 * 3500) + (q3800 * 3800));
+
           let obj = {
             fila: doc.id,
             cliente: data.cliente || "Sin Nombre",
@@ -314,6 +325,8 @@
             champinon: data.cantChampinon || 0,
             aceituna: data.cantAceituna || 0,
             spicy: data.cantSpicy || 0,
+            total: totalSeguro,
+            notas: data.notas || "",
             estadoPago: data.estadoPago || "⏳ Pendiente de pago",
             estadoLogistico: data.estadoLogistico || "Pendiente"
           };
@@ -329,7 +342,6 @@
         renderLista(listos, 'listosContainer', 'listo');
         renderLista(entregados, 'entregadosContainer', 'entregado');
 
-        // Apagamos la pantalla de carga una vez que tenemos los datos
         document.getElementById('loaderFull').style.display = 'none';
       }, (error) => {
         Swal.fire({ ...swalGlass, icon: 'error', title: 'Error de Firebase', text: error.message });
@@ -359,22 +371,27 @@
           if(p.aceituna > 0) itemsHtml += `<span class="history-item">⚫ Aceituna: ${p.aceituna}</span>`;
           if(p.spicy > 0) itemsHtml += `<span class="history-item">🌶️ Spicy: ${p.spicy}</span>`;
 
+          // INYECCIÓN DE TOTAL Y NOTAS
+          if(p.total > 0) {
+            itemsHtml += `<span class="history-item" style="background: rgba(255, 149, 0, 0.1); color: var(--accent-color); border-color: var(--accent-color); font-weight: 800;">💰 Total: $${p.total.toLocaleString('es-CL')}</span>`;
+          }
+          if(p.notas && p.notas.trim() !== "") {
+            itemsHtml += `<span class="history-item" style="border-left: 4px solid var(--accent-color); font-style: italic;">📝 Notas: ${p.notas}</span>`;
+          }
+
           let botonesAccion = `<button type="button" class="btn-edit-hist" onclick="editarDesdeHistorial('${p.fila}')"><span class="material-icons-round" style="font-size:18px;">edit_document</span> Editar este Pedido</button>`;
           
           if(tipo === 'pendiente') {
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado('${p.fila}', 'Listo')" style="background: linear-gradient(135deg, #0A84FF, #0056b3); box-shadow: 0 4px 10px rgba(10, 132, 255, 0.3);"><span class="material-icons-round">done</span> Marcar como Listo</button>`;
           } else if(tipo === 'listo') {
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="cambiarEstado('${p.fila}', 'Entregado')" style="background: linear-gradient(135deg, #30D158, #28a745); box-shadow: 0 4px 10px rgba(48, 209, 88, 0.3);"><span class="material-icons-round">inventory_2</span> Marcar como Entregado</button>`;
-            // Nuevo botón de reversa
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="revertirEstado('${p.fila}', 'Pendiente')" style="background: transparent; color: #FF3B30; border: 1px solid #FF3B30; box-shadow: none; margin-top: 8px;"><span class="material-icons-round">undo</span> Devolver a Pendientes</button>`;
           } else if(tipo === 'entregado') {
             if (!estadoSeguro.includes("Pagado")) {
               botonesAccion += `<button type="button" class="btn-action-estado" onclick="marcarPagadoRapido('${p.fila}')" style="background: linear-gradient(135deg, #FF9500, #D35400); box-shadow: 0 4px 10px rgba(255, 149, 0, 0.3);"><span class="material-icons-round">payments</span> Registrar Pago Rápido</button>`;
             }
-            // Nuevo botón de reversa
             botonesAccion += `<button type="button" class="btn-action-estado" onclick="revertirEstado('${p.fila}', 'Listo')" style="background: transparent; color: #FF3B30; border: 1px solid #FF3B30; box-shadow: none; margin-top: 8px;"><span class="material-icons-round">undo</span> Devolver a Listos</button>`;
-            // Botón de eliminar (Rojo transparente)
-          botonesAccion += `<button type="button" class="btn-action-estado" onclick="eliminarPedido('${p.fila}')" style="background: rgba(255, 59, 48, 0.1); color: #FF3B30; border: 1px solid rgba(255, 59, 48, 0.3); box-shadow: none; margin-top: 8px;"><span class="material-icons-round">delete_outline</span> Eliminar Pedido</button>`;
+            botonesAccion += `<button type="button" class="btn-action-estado" onclick="eliminarPedido('${p.fila}')" style="background: rgba(255, 59, 48, 0.1); color: #FF3B30; border: 1px solid rgba(255, 59, 48, 0.3); box-shadow: none; margin-top: 8px;"><span class="material-icons-round">delete_outline</span> Eliminar Pedido</button>`;
           }
 
           htmlOutput += `
@@ -397,11 +414,7 @@
       document.getElementById('loaderText').textContent = 'Moviendo pedido...';
       try {
         await db.collection("pedidos").doc(idFirebase).update({ estadoLogistico: nuevoEstado });
-        
-        // Apagamos el loader antes de lanzar la alerta
         document.getElementById('loaderFull').style.display = 'none';
-        
-        // Lanzamos el ticket verde de confirmación
         Swal.fire({ 
           ...swalGlass, 
           icon: 'success', 
@@ -434,10 +447,7 @@
         document.getElementById('loaderText').textContent = 'Devolviendo pedido...';
         try {
           await db.collection("pedidos").doc(idFirebase).update({ estadoLogistico: estadoDestino });
-          
           document.getElementById('loaderFull').style.display = 'none';
-          
-          // Ticket verde también al revertir exitosamente
           Swal.fire({ 
             ...swalGlass, 
             icon: 'success', 
@@ -471,11 +481,7 @@
         document.getElementById('loaderText').textContent = 'Eliminando...';
         try {
           await db.collection("pedidos").doc(idFirebase).delete();
-          
-          // Apagamos el loader antes de lanzar la confirmación
           document.getElementById('loaderFull').style.display = 'none';
-          
-          // Lanzamos el ticket verde de éxito
           Swal.fire({ 
             ...swalGlass, 
             icon: 'success', 
@@ -509,14 +515,13 @@
         let nuevoPago = result.isConfirmed ? '✅ Pagado (Transferencia)' : '✅ Pagado (Efectivo)';
         document.getElementById('loaderFull').style.display = 'flex';
         document.getElementById('loaderText').textContent = 'Registrando pago...';
-        
         try {
           await db.collection("pedidos").doc(idFirebase).update({ estadoPago: nuevoPago });
+          document.getElementById('loaderFull').style.display = 'none';
           Swal.fire({ ...swalGlass, icon: 'success', title: '¡Pago registrado!', showConfirmButton: false, timer: 1500 });
         } catch (error) {
-          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
-        } finally {
           document.getElementById('loaderFull').style.display = 'none';
+          Swal.fire({ ...swalGlass, icon: 'error', title: 'Error', text: error.message });
         }
       }
     }
@@ -527,6 +532,15 @@
       document.getElementById('selectorPedido').value = idFirebase; 
       manejarSeleccionPedido(); 
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // NUEVA FUNCIÓN PARA CALCULAR EL PRECIO
+    function calcularTotal() {
+      const v3500 = ['ajo', 'cilantro', 'ciboulette', 'spicy'].reduce((acc, id) => acc + parseInt(document.getElementById(id).value || 0), 0);
+      const v3800 = ['palta', 'champinon', 'aceituna'].reduce((acc, id) => acc + parseInt(document.getElementById(id).value || 0), 0);
+      const total = (v3500 * 3500) + (v3800 * 3800);
+      document.getElementById('totalPrecio').innerText = '$' + total.toLocaleString('es-CL');
+      return total;
     }
 
     async function manejarSeleccionPedido() {
@@ -561,6 +575,8 @@
             document.getElementById('estadoPago').value = datos.estadoPago || "⏳ Pendiente de pago";
             document.getElementById('notas').value = datos.notas || "";
             
+            calcularTotal(); // Recalcular al cargar pedido existente
+            
             btn.innerHTML = '<span class="material-icons-round">sync</span> Actualizar Pedido';
             btn.classList.add('btn-update-ios');
           }
@@ -577,11 +593,13 @@
       let valor = parseInt(input.value) + cambio;
       if (valor < 0) valor = 0;
       input.value = valor;
+      calcularTotal(); // Recalcular total al presionar + o -
     }
 
     function resetearContadores() {
       const ids = ['ajo', 'cilantro', 'ciboulette', 'palta', 'champinon', 'aceituna', 'spicy']; 
       ids.forEach(id => document.getElementById(id).value = '0');
+      document.getElementById('totalPrecio').innerText = '$0';
     }
 
     document.getElementById('pedidoForm').addEventListener('submit', async function(e) {
@@ -609,6 +627,7 @@
         cantChampinon: parseInt(document.getElementById('champinon').value),
         cantAceituna: parseInt(document.getElementById('aceituna').value),
         cantSpicy: parseInt(document.getElementById('spicy').value), 
+        total: calcularTotal(), // Guardamos el valor monetario definitivo
         estadoPago: document.getElementById('estadoPago').value,
         notas: document.getElementById('notas').value.trim()
       };
@@ -624,6 +643,7 @@
           await db.collection("pedidos").add(datos);
         }
 
+        document.getElementById('loaderFull').style.display = 'none';
         Swal.fire({ 
           ...swalGlass, icon: 'success', 
           title: esActualizacion ? '¡Actualizado!' : '¡Registrado!', 
@@ -640,9 +660,8 @@
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       } catch (error) {
-        Swal.fire({ ...swalGlass, icon: 'error', title: 'Error de Conexión', text: error.message });
-      } finally {
         document.getElementById('loaderFull').style.display = 'none';
+        Swal.fire({ ...swalGlass, icon: 'error', title: 'Error de Conexión', text: error.message });
       }
     });
   </script>
